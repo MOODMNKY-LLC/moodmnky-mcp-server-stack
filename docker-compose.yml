@@ -15,23 +15,7 @@ services:
       OPENAPI_MCP_HEADERS: "${NOTION_MCP_HEADERS}"
 
   #########################################################
-  # 2. 21st-Dev Magic MCP Server
-  #########################################################
-  magic-mcp:
-    image: node:18-alpine
-    container_name: magic-mcp
-    restart: unless-stopped
-    working_dir: /usr/src/app
-    command: >
-      sh -c "npm install -g @21st-dev/magic@latest &&
-             exec magic-mcp --port 8081"
-    ports:
-      - "${MAGIC_HOST_PORT}:8081"
-    environment:
-      MAGIC_API_KEY: "${MAGIC_API_KEY}"
-
-  #########################################################
-  # 3. Filesystem MCP Server
+  # 2. Filesystem MCP Server
   #########################################################
   filesystem:
     image: mcp/filesystem:latest
@@ -44,7 +28,7 @@ services:
       - "${FILESYSTEM_HOST_PORT}:8080"
 
   #########################################################
-  # 4. Discord MCP Server
+  # 3. Discord MCP Server
   #########################################################
   mcp-discord:
     image: mcp/mcp-discord:latest
@@ -57,7 +41,7 @@ services:
       DISCORD_BOT_PERMISSIONS: "${DISCORD_BOT_PERMISSIONS}"
 
   #########################################################
-  # 5. Sequential Thinking MCP Server
+  # 4. Sequential Thinking MCP Server
   #########################################################
   sequential-thinking:
     image: mcp/sequentialthinking:latest
@@ -67,7 +51,7 @@ services:
       - "${SEQUENTIAL_THINKING_HOST_PORT}:8080"
 
   #########################################################
-  # 6. Brave Search MCP Server
+  # 5. Brave Search MCP Server
   #########################################################
   brave-search:
     image: mcp/brave-search:latest
@@ -79,19 +63,19 @@ services:
       BRAVE_API_KEY: "${BRAVE_API_KEY}"
 
   #########################################################
-  # 7. Tavily Search MCP Server
+  # 6. Tavily Search MCP Server
   #########################################################
   tavily:
     image: mcp/tavily:latest
     container_name: mcp-tavily
     restart: unless-stopped
     ports:
-      - "${TAVILY_HOST_PORT}:8000"
+      - "${TAVILY_HOST_PORT}:8080"
     environment:
       TAVILY_API_KEY: "${TAVILY_API_KEY}"
 
   #########################################################
-  # 8. Firecrawl MCP Server
+  # 7. Firecrawl MCP Server
   #########################################################
   firecrawl:
     image: mcp/firecrawl:latest
@@ -100,17 +84,17 @@ services:
     ports:
       - "${FIRECRAWL_HOST_PORT}:8080"
     environment:
-      FIRECRAWL_API_URL:            "${FIRECRAWL_API_URL}"
+      FIRECRAWL_API_URL: "${FIRECRAWL_API_URL}"
       FIRECRAWL_RETRY_MAX_ATTEMPTS: "${FIRECRAWL_RETRY_MAX_ATTEMPTS}"
-      FIRECRAWL_RETRY_INITIAL_DELAY:"${FIRECRAWL_RETRY_INITIAL_DELAY}"
-      FIRECRAWL_RETRY_MAX_DELAY:    "${FIRECRAWL_RETRY_MAX_DELAY}"
-      FIRECRAWL_RETRY_BACKOFF_FACTOR:"${FIRECRAWL_RETRY_BACKOFF_FACTOR}"
+      FIRECRAWL_RETRY_INITIAL_DELAY: "${FIRECRAWL_RETRY_INITIAL_DELAY}"
+      FIRECRAWL_RETRY_MAX_DELAY: "${FIRECRAWL_RETRY_MAX_DELAY}"
+      FIRECRAWL_RETRY_BACKOFF_FACTOR: "${FIRECRAWL_RETRY_BACKOFF_FACTOR}"
       FIRECRAWL_CREDIT_WARNING_THRESHOLD: "${FIRECRAWL_CREDIT_WARNING_THRESHOLD}"
-      FIRECRAWL_CREDIT_CRITICAL_THRESHOLD:"${FIRECRAWL_CREDIT_CRITICAL_THRESHOLD}"
-      FIRECRAWL_API_KEY:            "${FIRECRAWL_API_KEY}"
+      FIRECRAWL_CREDIT_CRITICAL_THRESHOLD: "${FIRECRAWL_CREDIT_CRITICAL_THRESHOLD}"
+      FIRECRAWL_API_KEY: "${FIRECRAWL_API_KEY}"
 
   #########################################################
-  # 9. Fetch MCP Server
+  # 8. Fetch MCP Server
   #########################################################
   fetch:
     image: mcp/fetch:latest
@@ -120,7 +104,7 @@ services:
       - "${FETCH_HOST_PORT}:8080"
 
   #########################################################
-  # 10. Playwright MCP Server
+  # 9. Playwright MCP Server
   #########################################################
   playwright:
     image: mcp/playwright:latest
@@ -130,10 +114,10 @@ services:
       - "${PLAYWRIGHT_HOST_PORT}:8080"
 
   #########################################################
-  # 11. GitHub MCP Server
+  # 10. GitHub MCP Server
   #########################################################
   github:
-    image: mcp/github:latest
+    image: mcp/github-mcp-server:latest
     container_name: mcp-github
     restart: unless-stopped
     ports:
@@ -142,7 +126,7 @@ services:
       GITHUB_PERSONAL_ACCESS_TOKEN: "${GITHUB_PERSONAL_ACCESS_TOKEN}"
 
   #########################################################
-  # 12. Desktop Commander MCP Server
+  # 11. Desktop Commander MCP Server
   #########################################################
   desktop-commander:
     image: mcp/desktop-commander:latest
@@ -152,21 +136,19 @@ services:
       - "${DESKTOP_COMMANDER_HOST_PORT}:8080"
 
   #########################################################
-  # 13. Supabase-Dev (Postgres MCP) Server
+  # 12. Postgres MCP Server
   #########################################################
-  supabase-dev:
-    image: node:18-alpine
-    container_name: mcp-supabase-dev
+  postgres-mcp:
+    image: mcp/postgres:latest
+    container_name: mcp-postgres
     restart: unless-stopped
-    working_dir: /usr/src/app
-    command: >
-      sh -c "npm install -g @modelcontextprotocol/server-postgres &&
-             exec server-postgres --connection-url \"${SUPABASE_DEV_CONN}\""
     ports:
       - "${SUPABASE_DEV_HOST_PORT}:8080"
+    environment:
+      POSTGRES_CONNECTION_URL: "${SUPABASE_DEV_CONN}"
 
   #########################################################
-  # 14. Context7 MCP Server
+  # 13. Context7 MCP Server
   #########################################################
   context7:
     image: node:18-alpine
@@ -180,7 +162,7 @@ services:
       - "${CONTEXT7_HOST_PORT}:8080"
 
   #########################################################
-  # 15. YouTube Transcript MCP Server
+  # 14. YouTube Transcript MCP Server
   #########################################################
   youtube_transcript:
     image: mcp/youtube-transcript:latest
@@ -190,7 +172,7 @@ services:
       - "${YOUTUBE_TRANSCRIPT_HOST_PORT}:8080"
 
   #########################################################
-  # 16. Redis (for Memory MCP)
+  # 15. Redis (for Memory MCP)
   #########################################################
   redis:
     image: redis:7-alpine
@@ -203,7 +185,7 @@ services:
       - "${REDIS_HOST_PORT}:6379"
 
   #########################################################
-  # 17. Memory MCP Server (requires Redis)
+  # 16. Memory MCP Server (requires Redis)
   #########################################################
   memory:
     image: mcp/memory:latest
@@ -217,7 +199,7 @@ services:
       - "${MEMORY_HOST_PORT}:8080"
 
   #########################################################
-  # 18. @magicuidesign/mcp MCP Server
+  # 17. @magicuidesign/mcp MCP Server
   #########################################################
   magicuidesign-mcp:
     image: node:18-alpine
@@ -233,7 +215,7 @@ services:
   #########################################################
   # Helper: Filesystem Volume Manager
   # Use this to populate/manage the filesystem-data volume
-  # Run: docker-compose run --rm filesystem-helper sh
+  # Run: docker compose run --rm filesystem-helper sh
   #########################################################
   filesystem-helper:
     image: alpine:latest
