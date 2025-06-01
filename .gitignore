@@ -1,0 +1,16 @@
+# Ignore environment files containing secrets
+.env
+.env.local
+.env.*.local
+
+# Mac/Windows system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Optional Docker Compose override
+docker-compose.override.yml
+
+# Node modules (if any future scripts use node)
+node_modules/
