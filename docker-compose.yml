@@ -1,0 +1,235 @@
+version: "3.8"
+
+services:
+  #########################################################
+  # 1. Notion MCP Server
+  #########################################################
+  new-wave-protocol-notion:
+    image: mcp/notion:latest
+    container_name: new-wave-protocol-notion
+    restart: unless-stopped
+    ports:
+      - "${NOTION_HOST_PORT}:8080"
+    environment:
+      # Must be valid JSON (no line breaks)
+      OPENAPI_MCP_HEADERS: "${NOTION_MCP_HEADERS}"
+
+  #########################################################
+  # 2. 21st-Dev Magic MCP Server
+  #########################################################
+  magic-mcp:
+    image: node:18-alpine
+    container_name: magic-mcp
+    restart: unless-stopped
+    working_dir: /usr/src/app
+    command: >
+      sh -c "npm install -g @21st-dev/magic@latest &&
+             exec magic-mcp --port 8081"
+    ports:
+      - "${MAGIC_HOST_PORT}:8081"
+    environment:
+      MAGIC_API_KEY: "${MAGIC_API_KEY}"
+
+  #########################################################
+  # 3. Filesystem MCP Server
+  #########################################################
+  filesystem:
+    image: mcp/filesystem:latest
+    container_name: filesystem-mcp
+    restart: unless-stopped
+    volumes:
+      - "${FILESYSTEM_HOST_PATH}:/mnt/shared:ro"
+    command: ["/mnt/shared"]
+    ports:
+      - "${FILESYSTEM_HOST_PORT}:8080"
+
+  #########################################################
+  # 4. Discord MCP Server
+  #########################################################
+  mcp-discord:
+    image: mcp/mcp-discord:latest
+    container_name: mcp-discord
+    restart: unless-stopped
+    ports:
+      - "${DISCORD_HOST_PORT}:8080"
+    environment:
+      DISCORD_TOKEN: "${DISCORD_TOKEN}"
+      DISCORD_BOT_PERMISSIONS: "${DISCORD_BOT_PERMISSIONS}"
+
+  #########################################################
+  # 5. Sequential Thinking MCP Server
+  #########################################################
+  sequential-thinking:
+    image: mcp/sequentialthinking:latest
+    container_name: mcp-sequentialthinking
+    restart: unless-stopped
+    ports:
+      - "${SEQUENTIAL_THINKING_HOST_PORT}:8080"
+
+  #########################################################
+  # 6. Brave Search MCP Server
+  #########################################################
+  brave-search:
+    image: mcp/brave-search:latest
+    container_name: mcp-brave-search
+    restart: unless-stopped
+    ports:
+      - "${BRAVE_SEARCH_HOST_PORT}:8080"
+    environment:
+      BRAVE_API_KEY: "${BRAVE_API_KEY}"
+
+  #########################################################
+  # 7. Tavily Search MCP Server
+  #########################################################
+  tavily:
+    image: mcp/tavily:latest
+    container_name: mcp-tavily
+    restart: unless-stopped
+    ports:
+      - "${TAVILY_HOST_PORT}:8000"
+    environment:
+      TAVILY_API_KEY: "${TAVILY_API_KEY}"
+
+  #########################################################
+  # 8. Firecrawl MCP Server
+  #########################################################
+  firecrawl:
+    image: mcp/firecrawl:latest
+    container_name: mcp-firecrawl
+    restart: unless-stopped
+    ports:
+      - "${FIRECRAWL_HOST_PORT}:8080"
+    environment:
+      FIRECRAWL_API_URL:            "${FIRECRAWL_API_URL}"
+      FIRECRAWL_RETRY_MAX_ATTEMPTS: "${FIRECRAWL_RETRY_MAX_ATTEMPTS}"
+      FIRECRAWL_RETRY_INITIAL_DELAY:"${FIRECRAWL_RETRY_INITIAL_DELAY}"
+      FIRECRAWL_RETRY_MAX_DELAY:    "${FIRECRAWL_RETRY_MAX_DELAY}"
+      FIRECRAWL_RETRY_BACKOFF_FACTOR:"${FIRECRAWL_RETRY_BACKOFF_FACTOR}"
+      FIRECRAWL_CREDIT_WARNING_THRESHOLD: "${FIRECRAWL_CREDIT_WARNING_THRESHOLD}"
+      FIRECRAWL_CREDIT_CRITICAL_THRESHOLD:"${FIRECRAWL_CREDIT_CRITICAL_THRESHOLD}"
+      FIRECRAWL_API_KEY:            "${FIRECRAWL_API_KEY}"
+
+  #########################################################
+  # 9. Fetch MCP Server
+  #########################################################
+  fetch:
+    image: mcp/fetch:latest
+    container_name: mcp-fetch
+    restart: unless-stopped
+    ports:
+      - "${FETCH_HOST_PORT}:8080"
+
+  #########################################################
+  # 10. Playwright MCP Server
+  #########################################################
+  playwright:
+    image: mcp/playwright:latest
+    container_name: mcp-playwright
+    restart: unless-stopped
+    ports:
+      - "${PLAYWRIGHT_HOST_PORT}:8080"
+
+  #########################################################
+  # 11. GitHub MCP Server
+  #########################################################
+  github:
+    image: mcp/github:latest
+    container_name: mcp-github
+    restart: unless-stopped
+    ports:
+      - "${GITHUB_HOST_PORT}:8080"
+    environment:
+      GITHUB_PERSONAL_ACCESS_TOKEN: "${GITHUB_PERSONAL_ACCESS_TOKEN}"
+
+  #########################################################
+  # 12. Desktop Commander MCP Server
+  #########################################################
+  desktop-commander:
+    image: mcp/desktop-commander:latest
+    container_name: mcp-desktop-commander
+    restart: unless-stopped
+    ports:
+      - "${DESKTOP_COMMANDER_HOST_PORT}:8080"
+
+  #########################################################
+  # 13. Supabase-Dev (Postgres MCP) Server
+  #########################################################
+  supabase-dev:
+    image: node:18-alpine
+    container_name: mcp-supabase-dev
+    restart: unless-stopped
+    working_dir: /usr/src/app
+    command: >
+      sh -c "npm install -g @modelcontextprotocol/server-postgres &&
+             exec server-postgres --connection-url \"${SUPABASE_DEV_CONN}\""
+    ports:
+      - "${SUPABASE_DEV_HOST_PORT}:8080"
+
+  #########################################################
+  # 14. Context7 MCP Server
+  #########################################################
+  context7:
+    image: node:18-alpine
+    container_name: mcp-context7
+    restart: unless-stopped
+    working_dir: /usr/src/app
+    command: >
+      sh -c "npm install -g @upstash/context7-mcp@latest &&
+             exec context7-mcp"
+    ports:
+      - "${CONTEXT7_HOST_PORT}:8080"
+
+  #########################################################
+  # 15. YouTube Transcript MCP Server
+  #########################################################
+  youtube_transcript:
+    image: mcp/youtube-transcript:latest
+    container_name: mcp-youtube-transcript
+    restart: unless-stopped
+    ports:
+      - "${YOUTUBE_TRANSCRIPT_HOST_PORT}:8080"
+
+  #########################################################
+  # 16. Redis (for Memory MCP)
+  #########################################################
+  redis:
+    image: redis:7-alpine
+    container_name: mcp-redis
+    restart: unless-stopped
+    command: ["redis-server", "--save", ""]
+    volumes:
+      - redis-data:/data
+    ports:
+      - "${REDIS_HOST_PORT}:6379"
+
+  #########################################################
+  # 17. Memory MCP Server (requires Redis)
+  #########################################################
+  memory:
+    image: mcp/memory:latest
+    container_name: mcp-memory
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      REDIS_URL: "redis://redis:6379"
+    ports:
+      - "${MEMORY_HOST_PORT}:8080"
+
+  #########################################################
+  # 18. @magicuidesign/mcp MCP Server
+  #########################################################
+  magicuidesign-mcp:
+    image: node:18-alpine
+    container_name: mcp-magicuidesign
+    restart: unless-stopped
+    working_dir: /usr/src/app
+    command: >
+      sh -c "npm install -g @magicuidesign/mcp@latest &&
+             exec mcp"
+    ports:
+      - "${MAGICUIDESIGN_HOST_PORT}:8080"
+
+volumes:
+  filesystem-data: {}
+  redis-data: {}
