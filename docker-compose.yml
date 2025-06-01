@@ -1,4 +1,5 @@
-version: "3.8"
+# Optimized MCP Server Stack for Remote Deployment
+# Configured for Cloudflare Tunnel integration
 
 services:
   #########################################################
@@ -148,18 +149,50 @@ services:
       POSTGRES_CONNECTION_URL: "${SUPABASE_DEV_CONN}"
 
   #########################################################
-  # 13. Context7 MCP Server
+  # 13. Context7 MCP Server (Remote Endpoints)
   #########################################################
   context7:
-    image: node:18-alpine
+    image: nginx:alpine
     container_name: mcp-context7
     restart: unless-stopped
-    working_dir: /usr/src/app
-    command: >
-      sh -c "npm install -g @upstash/context7-mcp@latest &&
-             exec context7-mcp"
     ports:
-      - "${CONTEXT7_HOST_PORT}:8080"
+      - "${CONTEXT7_HOST_PORT}:80"
+    command: |
+      sh -c '
+      cat > /etc/nginx/nginx.conf << EOF
+      events { worker_connections 1024; }
+      http {
+        server {
+          listen 80;
+          location /health {
+            return 200 "Context7 Remote MCP Proxy - OK";
+            add_header Content-Type text/plain;
+          }
+          location /mcp {
+            proxy_pass https://mcp.context7.com/mcp;
+            proxy_ssl_server_name on;
+            proxy_set_header Host mcp.context7.com;
+          }
+          location /sse {
+            proxy_pass https://mcp.context7.com/sse;
+            proxy_ssl_server_name on;
+            proxy_set_header Host mcp.context7.com;
+            proxy_buffering off;
+          }
+          location /tools {
+            proxy_pass https://mcp.context7.com/mcp;
+            proxy_ssl_server_name on;
+            proxy_set_header Host mcp.context7.com;
+          }
+          location / {
+            return 200 "Context7 MCP Remote Proxy\nEndpoints: /mcp, /sse, /tools, /health";
+            add_header Content-Type text/plain;
+          }
+        }
+      }
+      EOF
+      exec nginx -g "daemon off;"
+      '
 
   #########################################################
   # 14. YouTube Transcript MCP Server
@@ -199,18 +232,34 @@ services:
       - "${MEMORY_HOST_PORT}:8080"
 
   #########################################################
-  # 17. @magicuidesign/mcp MCP Server
+  # 17. @magicuidesign/mcp MCP Server (Placeholder)
   #########################################################
   magicuidesign-mcp:
-    image: node:18-alpine
+    image: nginx:alpine
     container_name: mcp-magicuidesign
     restart: unless-stopped
-    working_dir: /usr/src/app
-    command: >
-      sh -c "npm install -g @magicuidesign/mcp@latest &&
-             exec mcp"
     ports:
-      - "${MAGICUIDESIGN_HOST_PORT}:8080"
+      - "${MAGICUIDESIGN_HOST_PORT}:80"
+    command: |
+      sh -c '
+      cat > /etc/nginx/nginx.conf << EOF
+      events { worker_connections 1024; }
+      http {
+        server {
+          listen 80;
+          location /health {
+            return 200 "MagicUI Design MCP - Placeholder (awaiting remote endpoint)";
+            add_header Content-Type text/plain;
+          }
+          location / {
+            return 503 "MagicUI Design MCP - Remote endpoint not yet available";
+            add_header Content-Type text/plain;
+          }
+        }
+      }
+      EOF
+      exec nginx -g "daemon off;"
+      '
 
   #########################################################
   # Helper: Filesystem Volume Manager
