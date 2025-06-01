@@ -38,7 +38,7 @@ services:
     container_name: filesystem-mcp
     restart: unless-stopped
     volumes:
-      - "${FILESYSTEM_HOST_PATH}:/mnt/shared:ro"
+      - filesystem-data:/mnt/shared:ro
     command: ["/mnt/shared"]
     ports:
       - "${FILESYSTEM_HOST_PORT}:8080"
@@ -229,6 +229,20 @@ services:
              exec mcp"
     ports:
       - "${MAGICUIDESIGN_HOST_PORT}:8080"
+
+  #########################################################
+  # Helper: Filesystem Volume Manager
+  # Use this to populate/manage the filesystem-data volume
+  # Run: docker-compose run --rm filesystem-helper sh
+  #########################################################
+  filesystem-helper:
+    image: alpine:latest
+    container_name: filesystem-helper
+    volumes:
+      - filesystem-data:/data
+    command: echo "Helper container for managing filesystem-data volume"
+    profiles:
+      - tools
 
 volumes:
   filesystem-data: {}
